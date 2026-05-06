@@ -6,6 +6,12 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
+_railway_public = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip()
+if _railway_public:
+    _railway_public = (
+        _railway_public.removeprefix("https://").removeprefix("http://").split("/")[0].strip()
+    )
+
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-inventario-cambiar-en-produccion")
 DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() in ("1", "true", "yes")
 
@@ -14,6 +20,17 @@ ALLOWED_HOSTS = [
     for h in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
     if h.strip()
 ]
+if _railway_public and _railway_public not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_railway_public)
+
+_on_railway = bool(
+    os.getenv("RAILWAY_ENVIRONMENT")
+    or os.getenv("RAILWAY_PROJECT_ID")
+    or os.getenv("RAILWAY_SERVICE_ID")
+)
+_railway_host_suffix = ".up.railway.app"
+if _on_railway and _railway_host_suffix not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_railway_host_suffix)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,12 +75,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+_database_url = os.getenv("DATABASE_URL", "").strip()
+if _database_url:
+    import dj_database_url
+
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=_database_url,
+            conn_max_age=600,
+            ssl_require=os.getenv("DATABASE_SSL_REQUIRE", "true").lower() in ("1", "true", "yes"),
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -85,9 +114,26 @@ REST_FRAMEWORK = {
 }
 
 _cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+_frontend_origin = os.getenv("FRONTEND_ORIGIN", "").strip().rstrip("/")
+
+CORS_ALLOWED_ORIGINS = []
 if _cors_origins:
-    CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins.split(",") if o.strip()]
-else:
+    CORS_ALLOWED_ORIGINS = [
+        o.strip().rstrip("/") for o in _cors_origins.split(",") if o.strip()
+    ]
+if _frontend_origin and _frontend_origin not in CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS.append(_frontend_origin)
+
+_cors_regexes: list[str] = []
+# En Railway sin DEBUG: permitir previews y sitio *.netlify.app.
+_netlify_re = r"^https://[a-zA-Z0-9.-]+\.netlify\.app$"
+if _on_railway and not DEBUG and _netlify_re not in _cors_regexes:
+    _cors_regexes.append(_netlify_re)
+
+if _cors_regexes:
+    CORS_ALLOWED_ORIGIN_REGEXES = _cors_regexes
+
+if not CORS_ALLOWED_ORIGINS and not _cors_regexes:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
