@@ -1,4 +1,9 @@
-# Migra antes de iniciar la app asi los errores aparecen claros en "Pre-deploy" en Railway.
-# El servicio web debe tener DATABASE_URL enlazado al plugin Postgres del mismo proyecto.
+# Obliga construcción con Dockerfile (la misma receta estable que funcionó en SIMConsultoria).
+# En el servicio PostgreSQL: crear referencia VARIABLE → Postgres → DATABASE_URL en el servicio web.
+[build]
+builder = "DOCKERFILE"
+
 [deploy]
 preDeployCommand = ["python", "manage.py", "migrate", "--noinput"]
+startCommand = "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120"
+healthcheckPath = "/api/health/"

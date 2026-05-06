@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,6 +77,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 _database_url = os.getenv("DATABASE_URL", "").strip()
+if _on_railway and not _database_url:
+    raise ImproperlyConfigured(
+        "DATABASE_URL no está configurado en Railway: en Variables del servicio web, "
+        "añade una referencia a la variable DATABASE_URL del plugin PostgreSQL."
+    )
+
+if _on_railway:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 if _database_url:
     import dj_database_url
 
