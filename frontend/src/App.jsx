@@ -1,6 +1,29 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-const apiRoot = import.meta.env.VITE_API_URL || "";
+const apiRoot = String(import.meta.env.VITE_API_URL ?? "")
+  .trim()
+  .replace(/\/+$/, "");
+
+const MISSING_VITE_IN_PROD_MSG =
+  "En producción falta una URL válida del API: Netlify → Site configuration → Environment variables → VITE_API_URL = https://tu-backend.up.railway.app (https, sin barra al final). Luego Deploy → Clear cache and deploy site.";
+
+async function parseResponseJson(res, context) {
+  const raw = await res.text();
+  const t = raw.trim();
+  if (t.startsWith("<") || raw.includes("<!doctype")) {
+    if (import.meta.env.PROD && !apiRoot) {
+      throw new Error(MISSING_VITE_IN_PROD_MSG);
+    }
+    throw new Error(
+      `${context}: la respuesta fue HTML en lugar del API JSON. Suele pasar cuando VITE_API_URL no existe o está mal — evita llamar solo a «/api/…» en Netlify.`,
+    );
+  }
+  try {
+    return t ? JSON.parse(raw) : null;
+  } catch {
+    throw new Error(`${context}: el cuerpo no es JSON válido.`);
+  }
+}
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -35,15 +58,24 @@ export default function App() {
     setError(null);
     setLoading(true);
     try {
+      if (import.meta.env.PROD && !apiRoot) {
+        throw new Error(MISSING_VITE_IN_PROD_MSG);
+      }
+      const base = apiRoot ? apiRoot : "";
       const [cr, sr] = await Promise.all([
-        fetch(`${apiRoot}/api/clientes/`),
-        fetch(`${apiRoot}/api/segmentos/`),
+        fetch(`${base}/api/clientes/`),
+        fetch(`${base}/api/segmentos/`),
+      ]);
+      const [cJson, sJson] = await Promise.all([
+        parseResponseJson(cr, "Clientes"),
+        parseResponseJson(sr, "Segmentos"),
       ]);
       if (!cr.ok) throw new Error("No se pudo cargar clientes.");
       if (!sr.ok) throw new Error("No se pudo cargar segmentos.");
-      const [cJson, sJson] = await Promise.all([cr.json(), sr.json()]);
-      setClientes(Array.isArray(cJson) ? cJson : cJson.results || []);
-      setSegmentos(Array.isArray(sJson) ? sJson : sJson.results || []);
+      const cList = Array.isArray(cJson) ? cJson : Array.isArray(cJson?.results) ? cJson.results : [];
+      const sList = Array.isArray(sJson) ? sJson : Array.isArray(sJson?.results) ? sJson.results : [];
+      setClientes(cList);
+      setSegmentos(sList);
     } catch (e) {
       setError(e.message || "Error de red.");
       setClientes([]);
@@ -141,7 +173,12 @@ export default function App() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
+        let err = {};
+        try {
+          err = await parseResponseJson(res, "Cliente");
+        } catch {
+          err = {};
+        }
         const msg = Object.values(err).flat().join(" ") || res.statusText;
         throw new Error(msg || "No se pudo guardar.");
       }
