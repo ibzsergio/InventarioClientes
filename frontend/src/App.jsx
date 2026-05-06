@@ -25,6 +25,35 @@ async function parseResponseJson(res, context) {
   }
 }
 
+function formatDrfErrors(data) {
+  if (!data || typeof data !== "object") return "";
+  if (typeof data.detail === "string") return data.detail;
+  if (Array.isArray(data.detail)) return data.detail.map(String).join(" ");
+  return Object.entries(data)
+    .map(([campo, val]) => {
+      if (Array.isArray(val)) return `${campo}: ${val.join(" ")}`;
+      if (val && typeof val === "object") return `${campo}: ${JSON.stringify(val)}`;
+      return `${campo}: ${val}`;
+    })
+    .join(" · ");
+}
+
+async function messageFromFailedResponse(res, label) {
+  const raw = await res.text();
+  const t = raw.trim();
+  const head = `${label}: HTTP ${res.status}`;
+  if (t.startsWith("<") || raw.toLowerCase().includes("<!doctype")) {
+    return `${head} — el servidor respondió HTML (revisa logs de Django en Railway o CSRF/despliegue).`;
+  }
+  try {
+    const data = t ? JSON.parse(raw) : {};
+    const body = formatDrfErrors(data);
+    return body ? `${head} · ${body}` : `${head} ${res.statusText || ""}`.trim();
+  } catch {
+    return `${head}: ${t ? t.slice(0, 280) : res.statusText || "error"}`;
+  }
+}
+
 function formatDate(iso) {
   if (!iso) return "";
   const [y, m, d] = String(iso).split("-");
@@ -169,7 +198,10 @@ export default function App() {
           : `${apiRoot}/api/clientes/`;
       const res = await fetch(url, {
         method: editingId != null ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
@@ -198,8 +230,11 @@ export default function App() {
     try {
       const res = await fetch(`${apiRoot}/api/clientes/${id}/`, {
         method: "DELETE",
+        headers: { Accept: "application/json" },
       });
-      if (!res.ok) throw new Error("No se pudo eliminar.");
+      if (!res.ok) {
+        throw new Error(await messageFromFailedResponse(res, "Eliminar"));
+      }
       await loadAll();
     } catch (e) {
       setError(e.message || "Error al eliminar.");
@@ -215,10 +250,15 @@ export default function App() {
     try {
       const res = await fetch(`${apiRoot}/api/segmentos/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ nombre }),
       });
-      if (!res.ok) throw new Error("No se pudo crear el segmento.");
+      if (!res.ok) {
+        throw new Error(await messageFromFailedResponse(res, "Segmento"));
+      }
       setNuevoSegmento("");
       await loadAll();
     } catch (e) {

@@ -111,6 +111,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+    # Sin sesión/cookies: evita efectos secundarios de SessionAuthentication en POST cross-origin (Netlify → Railway).
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
 }
 
 _cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
@@ -125,9 +127,9 @@ if _frontend_origin and _frontend_origin not in CORS_ALLOWED_ORIGINS:
     CORS_ALLOWED_ORIGINS.append(_frontend_origin)
 
 _cors_regexes: list[str] = []
-# En Railway sin DEBUG: permitir previews y sitio *.netlify.app.
+# En Railway: permitir sitio y deploy previews *.netlify.app (aunque DJANGO_DEBUG quede mal en True).
 _netlify_re = r"^https://[a-zA-Z0-9.-]+\.netlify\.app$"
-if _on_railway and not DEBUG and _netlify_re not in _cors_regexes:
+if _on_railway and _netlify_re not in _cors_regexes:
     _cors_regexes.append(_netlify_re)
 
 if _cors_regexes:
@@ -139,4 +141,5 @@ if not CORS_ALLOWED_ORIGINS and not _cors_regexes:
         "http://127.0.0.1:5173",
     ]
 
-CORS_ALLOW_CREDENTIALS = True
+# El front no usa cookies en el fetch; sin credenciales el CORS con origen dinámico es más fiable.
+CORS_ALLOW_CREDENTIALS = False
