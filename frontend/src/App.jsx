@@ -1,11 +1,33 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-const apiRoot = String(import.meta.env.VITE_API_URL ?? "")
-  .trim()
-  .replace(/\/+$/, "");
+/**
+ * Solo origen Django en Railway (+ path si no es solo /). Ej: https://algo.up.railway.app — sin sufijo `/api`:
+ * las rutas ya se piden como `${base}/api/...`. Si pegas …/api, se quita para no generar `/api/api/...` (404).
+ */
+function normalizeApiBase(raw) {
+  let u = String(raw ?? "").trim();
+  if (!u) return "";
+  if (!/^https?:\/\//i.test(u)) {
+    const looksLocal = /^localhost\b/i.test(u) || /^127\./i.test(u);
+    u = `${looksLocal ? "http" : "https"}://${u.replace(/^\/+/, "")}`;
+  }
+  try {
+    const parsed = new URL(u);
+    if (parsed.hostname.endsWith(".netlify.app")) return "";
+    let path = parsed.pathname.replace(/\/+$/, "");
+    while (/\/api$/i.test(path)) {
+      path = path.replace(/\/api$/i, "");
+    }
+    return `${parsed.protocol}//${parsed.host}${path}`.replace(/\/+$/, "");
+  } catch {
+    return "";
+  }
+}
+
+const apiRoot = normalizeApiBase(import.meta.env.VITE_API_URL);
 
 const MISSING_VITE_IN_PROD_MSG =
-  "En producción falta una URL válida del API: Netlify → Site configuration → Environment variables → VITE_API_URL = https://tu-backend.up.railway.app (https, sin barra al final). Luego Deploy → Clear cache and deploy site.";
+  "En Netlify define VITE_API_URL = https://TU-SERVICIO.up.railway.app (solo el dominio público del API de Railway, sin /api ni la URL *.netlify.app). Luego Clear cache and deploy.";
 
 async function parseResponseJson(res, context) {
   const raw = await res.text();
@@ -15,7 +37,7 @@ async function parseResponseJson(res, context) {
       throw new Error(MISSING_VITE_IN_PROD_MSG);
     }
     throw new Error(
-      `${context}: la respuesta fue HTML en lugar del API JSON. Suele pasar cuando VITE_API_URL no existe o está mal — evita llamar solo a «/api/…» en Netlify.`,
+      `${context}: recibimos HTML en lugar de JSON — el navegador no está hablando con Django/Railway. Comprueba VITE_API_URL (solo https://TU-DOMINIO.up.railway.app, sin /api) y redeploy Netlify tras cambiar variables.`,
     );
   }
   try {
@@ -43,7 +65,11 @@ async function messageFromFailedResponse(res, label) {
   const t = raw.trim();
   const head = `${label}: HTTP ${res.status}`;
   if (t.startsWith("<") || raw.toLowerCase().includes("<!doctype")) {
-    return `${head} — el servidor respondió HTML (revisa logs de Django en Railway o CSRF/despliegue).`;
+    const dupApi =
+      res.status === 404
+        ? " Con 404 suele pasar si VITE_API_URL termina en …/api (la app pide …/api/api/…)."
+        : "";
+    return `${head} — Django devolvió página HTML en lugar del JSON.${dupApi} Revisa VITE_API_URL (solo origen Railway, sin /api) y los logs del servicio web en Railway.`;
   }
   try {
     const data = t ? JSON.parse(raw) : {};
