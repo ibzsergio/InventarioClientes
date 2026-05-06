@@ -1,0 +1,4 @@
+# Migra antes de iniciar la app asi los errores aparecen claros en "Pre-deploy" en Railway.
+# El servicio web debe tener DATABASE_URL enlazado al plugin Postgres del mismo proyecto.
+[deploy]
+preDeployCommand = ["python", "manage.py", "migrate", "--noinput"]
