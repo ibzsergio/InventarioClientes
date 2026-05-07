@@ -185,7 +185,7 @@ export default function App() {
     resetForm();
     if (segmentos.length === 0) {
       setError(
-        "Agregue al menos un segmento en Configuración antes de registrar clientes.",
+        "Agregue al menos un sector en Configuración antes de registrar clientes.",
       );
       document.getElementById("config")?.scrollIntoView({ behavior: "smooth" });
       return;
@@ -286,7 +286,7 @@ export default function App() {
         body: JSON.stringify({ nombre }),
       });
       if (!res.ok) {
-        throw new Error(await messageFromFailedResponse(res, "Segmento"));
+        throw new Error(await messageFromFailedResponse(res, "Sector"));
       }
       setNuevoSegmento("");
       setShowNuevoSegmento(false);
@@ -328,7 +328,7 @@ export default function App() {
           </h2>
           <p className="section-help" role="note">
             Para dar de alta un cliente, pulse <strong>«Añadir»</strong>, complete sus datos en el
-            formulario y elija el segmento en el desplegable correspondiente.
+            formulario y elija el sector en el desplegable correspondiente.
           </p>
           <div className="toolbar">
             <div className="search-wrap">
@@ -387,7 +387,7 @@ export default function App() {
                     />
                   </div>
                   <div className="field">
-                    <label htmlFor="segmento">Segmento</label>
+                    <label htmlFor="segmento">Sector</label>
                     <select
                       id="segmento"
                       required
@@ -455,7 +455,7 @@ export default function App() {
                   <th>Nombre</th>
                   <th>Código</th>
                   <th>Ciudad</th>
-                  <th>Segmento</th>
+                <th>Sector</th>
                   <th>Fecha registro</th>
                   <th>Límite crédito</th>
                   <th>Acciones</th>
@@ -511,32 +511,27 @@ export default function App() {
 
         <section id="config" style={{ marginTop: "2.5rem" }} aria-labelledby="titulo-config">
           <h2 id="titulo-config" className="section-title">
-            Segmentos comerciales
+            Sectores comerciales
           </h2>
-          <p className="section-help" role="note">
-            No utilice el formulario de abajo salvo que el segmento que necesita{" "}
-            <strong>no exista</strong> en la lista de «Segmentos registrados».
-          </p>
           <div className="config-grid">
             {showNuevoSegmento ? (
               <div className="card">
-                <div className="card-head">
-                  Nuevo segmento
+                <div className="card-head card-head-row">
+                  <span>Nuevo sector</span>
                   <button
                     type="button"
-                    className="btn btn-neutral btn-sm"
+                    className="btn btn-light btn-sm"
                     onClick={() => {
                       setShowNuevoSegmento(false);
                       setNuevoSegmento("");
                     }}
-                    style={{ marginLeft: "auto" }}
                   >
                     Cancelar
                   </button>
                 </div>
                 <form className="card-body" onSubmit={agregarSegmento}>
                   <div className="field">
-                    <label htmlFor="seg-nombre">Nombre del segmento</label>
+                    <label htmlFor="seg-nombre">Nombre del sector</label>
                     <input
                       id="seg-nombre"
                       value={nuevoSegmento}
@@ -548,14 +543,14 @@ export default function App() {
                   </div>
                   <div className="form-actions">
                     <button type="submit" className="btn btn-success" disabled={segSaving}>
-                      {segSaving ? "Guardando..." : "Guardar segmento"}
+                      {segSaving ? "Guardando..." : "Guardar sector"}
                     </button>
                   </div>
                 </form>
               </div>
             ) : (
               <div className="card">
-                <div className="card-head">¿No ve su segmento?</div>
+                <div className="card-head">¿No ve su sector?</div>
                 <div className="card-body">
                   <label className="toggle-row">
                     <input
@@ -564,18 +559,18 @@ export default function App() {
                       onChange={(e) => setShowNuevoSegmento(e.target.checked)}
                     />
                     <span>
-                      No veo mi segmento en la lista y necesito crear uno nuevo.
+                      No veo mi sector en la lista y necesito crear uno nuevo.
                     </span>
                   </label>
                 </div>
               </div>
             )}
             <div className="card">
-              <div className="card-head">Segmentos registrados</div>
+              <div className="card-head">Sectores registrados</div>
               <div className="card-body">
                 {segmentos.length === 0 ? (
                   <p style={{ margin: 0, color: "var(--muted)" }}>
-                    Sin segmentos. Cree uno para habilitar el alta de clientes.
+                    Sin sectores. Cree uno para habilitar el alta de clientes.
                   </p>
                 ) : (
                   <ul className="segment-list">

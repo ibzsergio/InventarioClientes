@@ -173,6 +173,16 @@ main {
   font-size: 0.875rem;
 }
 
+.btn-light {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+}
+
+.btn-light:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.28);
+}
+
 .card {
   background: var(--card);
   border-radius: var(--radius);
@@ -188,6 +198,14 @@ main {
   padding: 0.65rem 1rem;
   font-weight: 700;
   font-size: 1rem;
+}
+
+.card-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  gap: 0.75rem;
 }
 
 .card-body {
