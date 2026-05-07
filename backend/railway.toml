@@ -1,5 +1,8 @@
-# Solo fuerza Docker. Sin healthcheckPath: el check mataba el deploy si migrate tarda o el proxy aún no enruta.
-# Sin startCommand: usa ENTRYPOINT del Dockerfile (PORT y migrate resueltos ahí).
-# Postgres: en el servicio web, referencia DATABASE_URL del plugin.
+# builder = Dockerfile + ENTRYPOINT (docker-entrypoint.sh). Vacía cualquier Start Command manual en Railway.
 [build]
 builder = "DOCKERFILE"
+
+[deploy]
+# Si el proceso cae (DB momentánea, SIGKILL en redeploy), Railway lo reintenta.
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 15
