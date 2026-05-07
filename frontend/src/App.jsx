@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import logoSim from "./assets/SIM.png";
+
 /**
  * Solo origen Django en Railway (+ path si no es solo /). Ej: https://algo.up.railway.app — sin sufijo `/api`:
  * las rutas ya se piden como `${base}/api/...`. Si pegas …/api, se quita para no generar `/api/api/...` (404).
@@ -300,7 +302,17 @@ export default function App() {
         Ir al contenido
       </a>
       <header className="top-nav">
-        <h1>Página de administración — Inventario de clientes</h1>
+        <div className="brand">
+          <img
+            src={logoSim}
+            alt="SIM"
+            className="brand-isotype"
+            width={40}
+            height={40}
+            decoding="async"
+          />
+          <h1>Página de administración — Inventario de clientes</h1>
+        </div>
       </header>
 
       <main id="inicio">
