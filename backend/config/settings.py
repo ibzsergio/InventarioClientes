@@ -28,9 +28,17 @@ _on_railway = bool(
     os.getenv("RAILWAY_ENVIRONMENT")
     or os.getenv("RAILWAY_PROJECT_ID")
     or os.getenv("RAILWAY_SERVICE_ID")
+    or os.getenv("RAILWAY_GIT_COMMIT_SHA")
+    or os.getenv("RAILWAY_REPLICA_ID")
+    or os.getenv("RAILWAY_PRIVATE_DOMAIN")
+    or os.getenv("RAILWAY_PUBLIC_DOMAIN")
 )
+# Necesario antes de ALLOWED_HOSTS / CORS (Postgres en producción aunque falte alguna var RAILWAY_*).
+_database_url = os.getenv("DATABASE_URL", "").strip()
+_hosted_with_postgres = bool(_database_url)
+
 _railway_host_suffix = ".up.railway.app"
-if _on_railway and _railway_host_suffix not in ALLOWED_HOSTS:
+if (_on_railway or _hosted_with_postgres) and _railway_host_suffix not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(_railway_host_suffix)
 
 INSTALLED_APPS = [
@@ -46,8 +54,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -76,14 +84,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-_database_url = os.getenv("DATABASE_URL", "").strip()
 if _on_railway and not _database_url:
     raise ImproperlyConfigured(
         "DATABASE_URL no está configurado en Railway: en Variables del servicio web, "
         "añade una referencia a la variable DATABASE_URL del plugin PostgreSQL."
     )
 
-if _on_railway:
+if _on_railway or _hosted_with_postgres:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 if _database_url:
@@ -154,9 +161,9 @@ if _frontend_origin and _frontend_origin not in CORS_ALLOWED_ORIGINS:
     CORS_ALLOWED_ORIGINS.append(_frontend_origin)
 
 _cors_regexes: list[str] = []
-# En Railway: permitir sitio y deploy previews *.netlify.app (aunque DJANGO_DEBUG quede mal en True).
+# Netlify (producción + branch deploys). Si _on_railway falla en Docker, DATABASE_URL (Postgres) indica despliegue real.
 _netlify_re = r"^https://[a-zA-Z0-9.-]+\.netlify\.app$"
-if _on_railway and _netlify_re not in _cors_regexes:
+if (_on_railway or _hosted_with_postgres) and _netlify_re not in _cors_regexes:
     _cors_regexes.append(_netlify_re)
 
 if _cors_regexes:
