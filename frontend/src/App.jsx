@@ -324,6 +324,10 @@ export default function App() {
           <h2 id="titulo-clientes" className="visually-hidden">
             Clientes
           </h2>
+          <p className="section-help" role="note">
+            Para dar de alta un cliente, pulse <strong>«Añadir»</strong>, complete sus datos en el
+            formulario y elija el segmento en el desplegable correspondiente.
+          </p>
           <div className="toolbar">
             <div className="search-wrap">
               <span className="search-icon" aria-hidden>
@@ -508,10 +512,8 @@ export default function App() {
             Segmentos comerciales
           </h2>
           <p className="section-help" role="note">
-            Para dar de alta un cliente, pulse <strong>«Añadir»</strong>, complete sus datos en el
-            formulario y elija el segmento en el desplegable correspondiente. No utilice el
-            formulario de abajo salvo que el segmento que necesita <strong>no exista</strong> en la
-            lista de «Segmentos registrados».
+            No utilice el formulario de abajo salvo que el segmento que necesita{" "}
+            <strong>no exista</strong> en la lista de «Segmentos registrados».
           </p>
           <div className="config-grid">
             <div className="card">
