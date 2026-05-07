@@ -307,8 +307,6 @@ export default function App() {
             src={logoSim}
             alt="SIM"
             className="brand-isotype"
-            width={40}
-            height={40}
             decoding="async"
           />
           <h1>Página de administración — Inventario de clientes</h1>
