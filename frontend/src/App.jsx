@@ -507,6 +507,12 @@ export default function App() {
           <h2 id="titulo-config" className="section-title">
             Segmentos comerciales
           </h2>
+          <p className="section-help" role="note">
+            No utilice el formulario de abajo salvo que el segmento que necesita{" "}
+            <strong>no exista</strong> en la lista de «Segmentos registrados». Para dar de alta un
+            cliente, pulse <strong>«Añadir»</strong>, complete sus datos en el formulario y elija el
+            segmento en el desplegable correspondiente.
+          </p>
           <div className="config-grid">
             <div className="card">
               <div className="card-head">Nuevo segmento</div>
