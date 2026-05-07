@@ -98,6 +98,7 @@ export default function App() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [showNuevoSegmento, setShowNuevoSegmento] = useState(false);
 
   const [form, setForm] = useState({
     nombre: "",
@@ -288,6 +289,7 @@ export default function App() {
         throw new Error(await messageFromFailedResponse(res, "Segmento"));
       }
       setNuevoSegmento("");
+      setShowNuevoSegmento(false);
       await loadAll();
     } catch (e) {
       setError(e.message || "Error en segmento.");
@@ -516,25 +518,58 @@ export default function App() {
             <strong>no exista</strong> en la lista de «Segmentos registrados».
           </p>
           <div className="config-grid">
-            <div className="card">
-              <div className="card-head">Nuevo segmento</div>
-              <form className="card-body" onSubmit={agregarSegmento}>
-                <div className="field">
-                  <label htmlFor="seg-nombre">Nombre del segmento</label>
-                  <input
-                    id="seg-nombre"
-                    value={nuevoSegmento}
-                    onChange={(e) => setNuevoSegmento(e.target.value)}
-                    placeholder="Ej. PyME, Corporativo, Gobierno"
-                  />
-                </div>
-                <div className="form-actions">
-                  <button type="submit" className="btn btn-success" disabled={segSaving}>
-                    {segSaving ? "Guardando..." : "Guardar segmento"}
+            {showNuevoSegmento ? (
+              <div className="card">
+                <div className="card-head">
+                  Nuevo segmento
+                  <button
+                    type="button"
+                    className="btn btn-neutral btn-sm"
+                    onClick={() => {
+                      setShowNuevoSegmento(false);
+                      setNuevoSegmento("");
+                    }}
+                    style={{ marginLeft: "auto" }}
+                  >
+                    Cancelar
                   </button>
                 </div>
-              </form>
-            </div>
+                <form className="card-body" onSubmit={agregarSegmento}>
+                  <div className="field">
+                    <label htmlFor="seg-nombre">Nombre del segmento</label>
+                    <input
+                      id="seg-nombre"
+                      value={nuevoSegmento}
+                      onChange={(e) => setNuevoSegmento(e.target.value)}
+                      placeholder="Ej. PyME, Corporativo, Gobierno"
+                      autoComplete="off"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="form-actions">
+                    <button type="submit" className="btn btn-success" disabled={segSaving}>
+                      {segSaving ? "Guardando..." : "Guardar segmento"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <div className="card">
+                <div className="card-head">¿No ve su segmento?</div>
+                <div className="card-body">
+                  <label className="toggle-row">
+                    <input
+                      type="checkbox"
+                      checked={showNuevoSegmento}
+                      onChange={(e) => setShowNuevoSegmento(e.target.checked)}
+                    />
+                    <span>
+                      No veo mi segmento en la lista y necesito crear uno nuevo.
+                    </span>
+                  </label>
+                </div>
+              </div>
+            )}
             <div className="card">
               <div className="card-head">Segmentos registrados</div>
               <div className="card-body">

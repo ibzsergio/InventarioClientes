@@ -323,6 +323,19 @@ tbody tr:hover {
   gap: 0.5rem;
 }
 
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text);
+}
+
+.toggle-row input {
+  margin-top: 0.2rem;
+}
+
 .skip-link {
   position: absolute;
   left: -9999px;
