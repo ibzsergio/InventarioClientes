@@ -12,5 +12,5 @@ COPY . .
 
 EXPOSE 8000
 
-# El arranque en Railway suele usar `startCommand` de railway.toml; este CMD sirve como respaldo si ejecutas la imagen a mano.
-CMD ["/bin/sh", "-c", "exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 120"]
+# Misma lógica que startCommand en railway.toml (migrate + gunicorn).
+CMD ["/bin/sh", "-c", "python manage.py migrate --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 120"]

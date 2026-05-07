@@ -1,9 +1,9 @@
-# Obliga construcción con Dockerfile (la misma receta estable que funcionó en SIMConsultoria).
-# En el servicio PostgreSQL: crear referencia VARIABLE → Postgres → DATABASE_URL en el servicio web.
+# Obliga construcción con Dockerfile.
+# Migrate en el mismo contenedor que gunicorn: el paso «pre-deploy» de Railway suele fallar sin el mismo runtime/red que la app.
+# Postgres: Variables del servicio web → referencia → DATABASE_URL.
 [build]
 builder = "DOCKERFILE"
 
 [deploy]
-preDeployCommand = "python manage.py migrate --noinput"
-startCommand = "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120"
+startCommand = "/bin/sh -c \"python manage.py migrate --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120\""
 healthcheckPath = "/api/health/"
