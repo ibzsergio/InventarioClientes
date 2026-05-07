@@ -69,6 +69,8 @@ a {
   max-width: min(220px, 42vw);
   object-fit: contain;
   display: block;
+  /* Letras / marca en blanco sobre el nav azul (equivalente a “tint” monocromo) */
+  filter: brightness(0) invert(1);
 }
 
 .top-nav h1 {
