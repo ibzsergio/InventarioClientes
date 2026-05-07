@@ -125,14 +125,31 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],
 }
 
+def _normalize_cors_origin(raw: str) -> str:
+    """
+    django-cors-headers exige esquema + host (ej. https://algo.netlify.app).
+    Si en Railway/Netlify pusieron solo «dominio.com», añadimos https:// (o http:// para local).
+    """
+    o = raw.strip().rstrip("/")
+    if not o:
+        return ""
+    if "://" in o:
+        return o
+    if o.startswith("localhost") or o.startswith("127."):
+        return f"http://{o}"
+    return f"https://{o}"
+
+
 _cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
-_frontend_origin = os.getenv("FRONTEND_ORIGIN", "").strip().rstrip("/")
+_frontend_origin_raw = os.getenv("FRONTEND_ORIGIN", "").strip()
+_frontend_origin = _normalize_cors_origin(_frontend_origin_raw)
 
 CORS_ALLOWED_ORIGINS = []
 if _cors_origins:
-    CORS_ALLOWED_ORIGINS = [
-        o.strip().rstrip("/") for o in _cors_origins.split(",") if o.strip()
-    ]
+    for part in _cors_origins.split(","):
+        n = _normalize_cors_origin(part)
+        if n and n not in CORS_ALLOWED_ORIGINS:
+            CORS_ALLOWED_ORIGINS.append(n)
 if _frontend_origin and _frontend_origin not in CORS_ALLOWED_ORIGINS:
     CORS_ALLOWED_ORIGINS.append(_frontend_origin)
 
