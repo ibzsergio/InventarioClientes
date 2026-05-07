@@ -1,9 +1,5 @@
-# Obliga construcción con Dockerfile.
-# Migrate en el mismo contenedor que gunicorn: el paso «pre-deploy» de Railway suele fallar sin el mismo runtime/red que la app.
-# Postgres: Variables del servicio web → referencia → DATABASE_URL.
+# Solo fuerza Docker. Sin healthcheckPath: el check mataba el deploy si migrate tarda o el proxy aún no enruta.
+# Sin startCommand: usa ENTRYPOINT del Dockerfile (PORT y migrate resueltos ahí).
+# Postgres: en el servicio web, referencia DATABASE_URL del plugin.
 [build]
 builder = "DOCKERFILE"
-
-[deploy]
-startCommand = "/bin/sh -c \"python manage.py migrate --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120\""
-healthcheckPath = "/api/health/"

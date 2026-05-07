@@ -12,5 +12,5 @@ COPY . .
 
 EXPOSE 8000
 
-# Misma lógica que startCommand en railway.toml (migrate + gunicorn).
-CMD ["/bin/sh", "-c", "python manage.py migrate --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 120"]
+# `sh` evita problemas de permisos/shebang si el repo se clona en Windows.
+ENTRYPOINT ["sh", "/app/docker-entrypoint.sh"]
