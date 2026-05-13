@@ -33,9 +33,10 @@ _on_railway = bool(
     or os.getenv("RAILWAY_PRIVATE_DOMAIN")
     or os.getenv("RAILWAY_PUBLIC_DOMAIN")
 )
-# Necesario antes de ALLOWED_HOSTS / CORS (Postgres en producción aunque falte alguna var RAILWAY_*).
+
 _database_url = os.getenv("DATABASE_URL", "").strip()
 _hosted_with_postgres = bool(_database_url)
+_mysql_host = os.getenv("MYSQL_HOST", "").strip()
 
 _railway_host_suffix = ".up.railway.app"
 if (_on_railway or _hosted_with_postgres) and _railway_host_suffix not in ALLOWED_HOSTS:
@@ -84,7 +85,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-if _on_railway and not _database_url:
+if _on_railway and not _database_url and not _mysql_host:
     raise ImproperlyConfigured(
         "DATABASE_URL no está configurado en Railway: en Variables del servicio web, "
         "añade una referencia a la variable DATABASE_URL del plugin PostgreSQL."
@@ -93,7 +94,23 @@ if _on_railway and not _database_url:
 if _on_railway or _hosted_with_postgres:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-if _database_url:
+if _mysql_host:
+    # Local (p. ej. XAMPP): define MYSQL_* en .env y deja DATABASE_URL vacío.
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.getenv("MYSQL_DATABASE", "inventario_clientes"),
+            "USER": os.getenv("MYSQL_USER", "root"),
+            "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
+            "HOST": _mysql_host,
+            "PORT": os.getenv("MYSQL_PORT", "3306"),
+            "OPTIONS": {
+                "charset": "utf8mb4",
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    }
+elif _database_url:
     import dj_database_url
 
     DATABASES = {

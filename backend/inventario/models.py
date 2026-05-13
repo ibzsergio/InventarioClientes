@@ -2,10 +2,6 @@ from django.db import models
 
 
 class SegmentoCliente(models.Model):
-    """
-    Tabla 1: segmentación comercial (relación uno a muchos con clientes).
-    Campos tipo varchar/texto.
-    """
 
     nombre = models.CharField(max_length=120)
 
@@ -19,10 +15,6 @@ class SegmentoCliente(models.Model):
 
 
 class Cliente(models.Model):
-    """
-    Tabla 2: clientes registrados con tipos varchar, entero y fecha,
-    enlazados a segmento mediante clave foránea.
-    """
 
     nombre = models.CharField("Nombre o razón social", max_length=200)
     codigo_cliente = models.CharField("Código interno", max_length=64, unique=True)
