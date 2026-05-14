@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --nav: #1a5fb4;
   --nav-hover: #3584e4;
@@ -42,15 +46,23 @@ a {
 }
 
 .top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
   background: var(--nav);
   color: #fff;
   padding: 0.85rem clamp(1rem, 4vw, 2rem);
+  box-shadow: var(--shadow);
+}
+
+.top-nav__row {
+  max-width: 1120px;
+  margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
-  box-shadow: var(--shadow);
+  justify-content: space-between;
+  gap: 0.85rem 1.25rem;
 }
 
 .top-nav .brand {
@@ -58,7 +70,42 @@ a {
   align-items: center;
   gap: 1rem;
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 1 1 200px;
+}
+
+.top-nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.2rem 0.35rem;
+}
+
+.top-nav__links a {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 600;
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.top-nav__links a:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.top-nav__links a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+#inicio,
+#clientes,
+#config,
+#info-legal {
+  scroll-margin-top: 5.75rem;
 }
 
 /* Sin recuadro: el PNG se ve directo sobre la barra azul; tamaño legible en móvil y escritorio */
@@ -87,6 +134,112 @@ main {
   max-width: 1120px;
   width: 100%;
   margin: 0 auto;
+}
+
+.info-legal-block {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Pie de página (estructura tipo ConsultoriaSim, paleta InventarioClientes) */
+.inv-pie {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 2rem clamp(1rem, 4vw, 2rem);
+  background: linear-gradient(165deg, #163a66 0%, var(--nav) 55%);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
+}
+
+.inv-pie__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  text-align: center;
+}
+
+.inv-pie__siguenos {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.inv-pie__redes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.inv-pie__redes a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.65rem;
+  min-width: 2.65rem;
+  min-height: 2.65rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+}
+
+.inv-pie__redes a:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.inv-pie__redes-img {
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.inv-pie__lower {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  text-align: left;
+  padding-top: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.inv-pie__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.inv-pie__legal a {
+  color: #bfdbfe;
+  text-decoration: none;
+}
+
+.inv-pie__legal a:hover {
+  text-decoration: underline;
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .inv-pie__lower {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .inv-pie__legal {
+    justify-content: center;
+  }
 }
 
 .toolbar {

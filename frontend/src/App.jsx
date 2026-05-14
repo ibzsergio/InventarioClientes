@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import logoSim from "./assets/SIM.png";
+import urlRedesTwitterX from "./assets/redes-twitter-x.svg?url";
+import urlRedesFacebook from "./assets/redes-facebook.svg?url";
+import urlRedesInstagram from "./assets/redes-instagram.svg?url";
+import urlRedesYoutube from "./assets/redes-youtube.svg?url";
+import urlRedesLinkedin from "./assets/redes-linkedin.svg?url";
 
 /**
  * Solo origen Django en Railway (+ path si no es solo /). Ej: https://algo.up.railway.app — sin sufijo `/api`:
@@ -304,14 +309,22 @@ export default function App() {
         Ir al contenido
       </a>
       <header className="top-nav">
-        <div className="brand">
-          <img
-            src={logoSim}
-            alt="SIM"
-            className="brand-isotype"
-            decoding="async"
-          />
-          <h1>Página de administración — Inventario de clientes</h1>
+        <div className="top-nav__row">
+          <div className="brand">
+            <img
+              src={logoSim}
+              alt="SIM"
+              className="brand-isotype"
+              decoding="async"
+            />
+            <h1>Página de administración — Inventario de clientes</h1>
+          </div>
+          <nav className="top-nav__links" aria-label="Secciones de la página">
+            <a href="#inicio">Inicio</a>
+            <a href="#clientes">Inventario</a>
+            <a href="#config">Sectores</a>
+            <a href="#info-legal">Información</a>
+          </nav>
         </div>
       </header>
 
@@ -588,7 +601,116 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        <section
+          id="info-legal"
+          className="info-legal-block"
+          aria-labelledby="titulo-info-legal"
+        >
+          <h2 id="titulo-info-legal" className="section-title">
+            Información general
+          </h2>
+          <p className="section-help" style={{ marginBottom: 0 }}>
+            Este panel forma parte del <strong>inventario de clientes</strong> de la
+            organización. Los datos se almacenan de forma persistente según las políticas
+            internas. Para dudas sobre privacidad o uso de la información, contacte al
+            administrador del sistema.
+          </p>
+        </section>
       </main>
+
+      <footer className="inv-pie" id="pie">
+        <div className="inv-pie__inner">
+          <p className="inv-pie__siguenos">Síguenos</p>
+          <nav className="inv-pie__redes" aria-label="Redes sociales">
+            <a
+              href="https://twitter.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter / X"
+            >
+              <img
+                src={urlRedesTwitterX}
+                alt=""
+                className="inv-pie__redes-img"
+                width={22}
+                height={22}
+                decoding="async"
+              />
+            </a>
+            <a
+              href="https://www.facebook.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+            >
+              <img
+                src={urlRedesFacebook}
+                alt=""
+                className="inv-pie__redes-img"
+                width={22}
+                height={22}
+                decoding="async"
+              />
+            </a>
+            <a
+              href="https://www.instagram.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
+              <img
+                src={urlRedesInstagram}
+                alt=""
+                className="inv-pie__redes-img"
+                width={22}
+                height={22}
+                decoding="async"
+              />
+            </a>
+            <a
+              href="https://www.youtube.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+            >
+              <img
+                src={urlRedesYoutube}
+                alt=""
+                className="inv-pie__redes-img"
+                width={22}
+                height={22}
+                decoding="async"
+              />
+            </a>
+            <a
+              href="https://www.linkedin.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
+              <img
+                src={urlRedesLinkedin}
+                alt=""
+                className="inv-pie__redes-img"
+                width={22}
+                height={22}
+                decoding="async"
+              />
+            </a>
+          </nav>
+          <div className="inv-pie__lower">
+            <span>
+              © {new Date().getFullYear()} Inventario de clientes · SIM. Todos los derechos
+              reservados.
+            </span>
+            <div className="inv-pie__legal">
+              <a href="#info-legal">Aviso</a>
+              <a href="#inicio">Términos de uso</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
